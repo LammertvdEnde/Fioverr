@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Fi overr — handige services voor scholieren, zonder Artificial Intelligence.">
+  <title>Fi overr — Service voor scholieren</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="Fi overr home">
+      <img src="assets/logo.jpg" alt="" class="brand-mark">
+      <span>Fioverr</span>
+    </a>
+    <button class="search-button" type="button" aria-label="Zoeken" title="Zoeken">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.7"></circle><path d="m16 16 5 5"></path></svg>
+    </button>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-logo-wrap">
+          <span class="credit">Lammert van der Ende</span>
+          <img src="assets/logo.jpg" alt="Fioverr logo" class="hero-logo">
+        </div>
+        <div class="hero-copy">
+          <h1>Fioverr</h1>
+          <p>Service voor scholieren, zonder Artificial Intelligence!</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="intro">
+      <p>
+        Hallo! Wij zijn Lammert, Jinwon, Dion en Sander uit 5 VWO. Voor een informatica project bouwen wij een systeem
+        om jullie te voorzien van handige services. Wij kunnen bijvoorbeeld een samenvatting van je leertekst maken,
+        posters voor jullie eigen projecten photoshoppen en uitlegvideo's maken voor leerlingen en docenten.
+        En het belangrijkste is, een eindresultaat 100% zonder AI!
+      </p>
+    </section>
+
+    <section class="section-heading">
+      <div class="content-width"><h2>Stuur ons een opdracht:</h2></div>
+    </section>
+
+    <section class="services content-width" aria-label="Onze services">
+      <article class="service-card">
+        <img src="assets/design.jpg" alt="Illustratie van grafisch ontwerp en een laptop">
+        <p>Design - foto's, posters, presentatie</p>
+        <button type="button" data-service="Design - foto's, posters, presentatie">Kiezen</button>
+      </article>
+
+      <article class="service-card">
+        <img src="assets/video.jpg" alt="Voorbeeld van een video over wiskunde">
+        <p>Video editing - reclame video's, video's voor schoolopdrachten (niet voor een cijfer)</p>
+        <button type="button" data-service="Video editing">Kiezen</button>
+      </article>
+
+      <article class="service-card">
+        <img src="assets/summary.jpg" alt="Voorbeeld van een scheikundesamenvatting">
+        <p>Leerstof uitleg - samenvattingen</p>
+        <button type="button" data-service="Leerstof uitleg - samenvattingen">Kiezen</button>
+      </article>
+
+      <article class="service-card featured">
+        <span class="credit card-credit">Dion Freeke</span>
+        <img src="assets/other.jpg" alt="Illustratie met een vraagteken">
+        <p>Overige zaken</p>
+        <button type="button" data-service="Overige zaken">Kiezen</button>
+      </article>
+    </section>
+
+    <section class="request-panel" id="request-panel" hidden>
+      <div class="request-inner">
+        <div>
+          <p class="eyebrow">Nieuwe opdracht</p>
+          <h2 id="request-title">Vertel ons wat je nodig hebt</h2>
+        </div>
+        <form id="request-form">
+          <label for="service">Soort opdracht</label>
+          <input id="service" name="service" readonly>
+          <label for="details">Wat is je opdracht?</label>
+          <textarea id="details" name="details" rows="4" placeholder="Beschrijf kort wat we voor je kunnen doen..." required></textarea>
+          <div class="form-actions">
+            <button type="button" class="button-secondary" id="close-form">Sluiten</button>
+            <button type="submit">E-mail opstellen</button>
+          </div>
+          <p class="form-note">Er wordt een e-mail opgesteld in je eigen mailprogramma. Er worden geen gegevens naar deze demo-site verstuurd.</p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer><span>Fioverr</span><span>Service voor scholieren, zonder Artificial Intelligence.</span></footer>
+  <script src="script.js"></script>
+</body>
+</html>
