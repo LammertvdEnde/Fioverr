@@ -12,9 +12,9 @@ jobs:
       - name: Haal huidige repository op
         uses: actions/checkout@v4
 
-      - name: Download Google Site en behoud verplichte schoolbestanden
+      - name: Download Google Site en behoud schoolbestanden
         run: |
-          mkdir temp_site
+          mkdir -p temp_site
           wget --mirror \
                --convert-links \
                --adjust-extension \
@@ -23,31 +23,36 @@ jobs:
                --no-host-directories \
                --cut-dirs=2 \
                --directory-prefix=temp_site \
-               https://sites.google.com/view/fioverr/homepage || true
+               "https://sites.google.com/view/fioverr/homepage" || true
           
-          # 1. Verwijder overbodige Google-systeembestanden en robots.txt
+          # 1. Verwijder overbodige Google-bestanden en robots.txt
           rm -f temp_site/robots.txt
           find temp_site -name "APXyLQ*" -type f ! -name "*.*" -delete
 
-          # 2. Zet de hoofdpagina om naar index.html
-          if [ ! -f temp_site/index.html ]; then
-            FIRST_HTML=$(ls temp_site/*.html | head -n 1)
+          # 2. Zet homepage.html om naar index.html
+          if [ -f temp_site/homepage.html ]; then
+            mv temp_site/homepage.html temp_site/index.html
+          elif [ ! -f temp_site/index.html ]; then
+            FIRST_HTML=$(find temp_site -maxdepth 1 -name "*.html" | head -n 1)
             if [ -n "$FIRST_HTML" ]; then
               mv "$FIRST_HTML" temp_site/index.html
             fi
           fi
 
-          # 3. Verwijder Google's doorstuur-scripts en meta-refreshes uit alle HTML-bestanden
-          find temp_site -name "*.html" -exec sed -i -E 's/window\.location\.(replace|assign|href)/void/g; s/<meta[^>]*http-equiv=["'\'']?refresh["'\'']?[^>]*>//gi' {} +
+          # 3. Verwijder doorstuur-scripts zodat fioverr.pages.dev niet doorstuurt naar Google
+          find temp_site -name "*.html" -exec sed -i -E 's/window\.location\.(replace|assign|href)/void/g' {} +
+          find temp_site -name "*.html" -exec sed -i -E 's/<meta[^>]*refresh[^>]*>//gi' {} +
 
           # 4. Maak de hoofdmap schoon, maar BEHOUD .git, .github, README.md, app.js en tests.js
-          find . -maxdepth 1 ! -name '.' ! -name '..' ! -name '.git' ! -name '.github' ! -name 'README.md' ! -name 'app.js' ! -name 'tests.js' -exec rm -rf {} +
+          find . -maxdepth 1 ! -name '.' ! -name '..' ! -name '.git' ! -name '.github' ! -name 'README.md' ! -name 'app.js' ! -name 'tests.js' ! -name 'temp_site' -exec rm -rf {} +
 
           # 5. Verplaats de nieuwe website-bestanden naar de hoofdmap
-          cp -rf temp_site/* .
+          if [ -n "$(ls -A temp_site 2>/dev/null)" ]; then
+            cp -rf temp_site/* .
+          fi
           rm -rf temp_site
 
-          # 6. Maak de verplichte bestanden aan als jullie ze nog niet zelf in de repo hadden gezet
+          # 6. Maak de verplichte schoolbestanden aan als ze nog niet bestaan
           [ -f README.md ] || echo "# Fioverr" > README.md
           [ -f app.js ] || echo "// Product code" > app.js
           [ -f tests.js ] || echo "// Kwaliteit tests" > tests.js
@@ -57,4 +62,4 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add -A
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update Google Site en behoud schoolbestanden" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Clean update Google Site" && git push)
