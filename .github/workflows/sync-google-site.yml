@@ -12,7 +12,7 @@ jobs:
       - name: Haal huidige repository op
         uses: actions/checkout@v4
 
-      - name: Download Google Site direct naar de hoofdmap
+      - name: Download Google Site en schoon overbodige files op
         run: |
           mkdir temp_site
           wget --mirror \
@@ -23,18 +23,27 @@ jobs:
                --no-host-directories \
                --cut-dirs=2 \
                --directory-prefix=temp_site \
-               https://sites.google.com/view/fioverr/homepage || true
+             https://sites.google.com/view/fioverr/homepage || true
           
-          # Hernoem de hoofdpagina (bijv. home.html of fioverr.html) naar index.html als index.html ontbreekt
+          # 1. Verwijder overbodige Google-systeembestanden en robots.txt
+          rm -f temp_site/robots.txt
+          find temp_site -name "APXyLQ*" -type f ! -name "*.*" -delete
+
+          # 2. Zet de hoofdpagina om naar index.html en verwijder het losse duplicaat (zoals homepage.html)
           if [ ! -f temp_site/index.html ]; then
             FIRST_HTML=$(ls temp_site/*.html | head -n 1)
             if [ -n "$FIRST_HTML" ]; then
-              cp "$FIRST_HTML" temp_site/index.html
+              mv "$FIRST_HTML" temp_site/index.html
             fi
           fi
 
-          # Verwijder oude mappen/bestanden en zet de nieuwe bestanden in de hoofdmap
-          rm -rf view sitesv-images-rt robots.txt
+          # 3. Verwijder Google's doorstuur-scripts en meta-refreshes uit alle HTML-bestanden
+          find temp_site -name "*.html" -exec sed -i -E 's/window\.location\.(replace|assign|href)/void/g; s/<meta[^>]*http-equiv=["'\'']?refresh["'\'']?[^>]*>//gi' {} +
+
+          # 4. Maak de hoofdmap van de repository helemaal schoon (behoud alleen .git en .github)
+          find . -maxdepth 1 ! -name '.' ! -name '..' ! -name '.git' ! -name '.github' -exec rm -rf {} +
+
+          # 5. Verplaats de schone bestanden naar de hoofdmap
           cp -rf temp_site/* .
           rm -rf temp_site
 
@@ -43,4 +52,4 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add -A
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update Google Site in root" && git push)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Clean update Google Site" && git push)
