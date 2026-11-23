@@ -1,0 +1,39 @@
+name: Sync Google Site naar GitHub
+
+on:
+  # 1. Geeft je een knop in GitHub om handmatig direct te synchroniseren
+  workflow_dispatch:
+  # 2. Draait automatisch elk uur (op minuut 0)
+  schedule:
+    - cron: '0 * * * *'
+
+jobs:
+  mirror-site:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Haal huidige repository op
+        uses: actions/checkout@v4
+
+      - name: Download Google Site met wget
+        run: |
+          # Maak een schone map aan voor de website
+          rm -rf site_export
+          mkdir site_export
+          
+          # Download de pagina's, afbeeldingen en CSS, en pas links aan voor offline/GitHub gebruik
+          wget --mirror \
+               --convert-links \
+               --adjust-extension \
+               --page-requisites \
+               --no-parent \
+               --no-host-directories \
+               --directory-prefix=site_export \
+               https://sites.google.com/view/fioverr || true
+
+      - name: Commit en push wijzigingen naar GitHub
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add site_export/
+          # Commit alleen als er daadwerkelijk iets is veranderd
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update Google Site export" && git push)
