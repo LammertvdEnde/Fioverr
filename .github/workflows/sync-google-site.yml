@@ -12,9 +12,8 @@ jobs:
       - name: Haal huidige repository op
         uses: actions/checkout@v4
 
-      - name: Download Google Site naar de hoofdmap
+      - name: Download Google Site direct naar de hoofdmap
         run: |
-          # Download naar een tijdelijke map
           mkdir temp_site
           wget --mirror \
                --convert-links \
@@ -22,14 +21,22 @@ jobs:
                --page-requisites \
                --no-parent \
                --no-host-directories \
+               --cut-dirs=2 \
                --directory-prefix=temp_site \
-               https://sites.google.com/view/fioverr || true
+               https://sites.google.com/view/fioverr/homepage || true
           
-          # Verplaats alles vanuit de tijdelijke map naar de hoofdmap
+          # Hernoem de hoofdpagina (bijv. home.html of fioverr.html) naar index.html als index.html ontbreekt
+          if [ ! -f temp_site/index.html ]; then
+            FIRST_HTML=$(ls temp_site/*.html | head -n 1)
+            if [ -n "$FIRST_HTML" ]; then
+              cp "$FIRST_HTML" temp_site/index.html
+            fi
+          fi
+
+          # Verwijder oude mappen/bestanden en zet de nieuwe bestanden in de hoofdmap
+          rm -rf view sitesv-images-rt robots.txt
           cp -rf temp_site/* .
-          
-          # Ruim de tijdelijke map en de oude site_export map op
-          rm -rf temp_site site_export
+          rm -rf temp_site
 
       - name: Commit en push wijzigingen naar GitHub
         run: |
